@@ -1,0 +1,102 @@
+# Generate HTML, CSS, and JavaScript code for the mobile web version of the roulette game
+
+html_code = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roulette Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #2c3e50;
+      color: white;
+    }
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    .result {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Roulette Game</h1>
+  <p>Budget: $<span id="budget">100</span></p>
+  <input type="number" id="betAmount" placeholder="Enter bet amount" />
+  <input type="text" id="prediction" placeholder="0-36, red, black, blue, 1-12..." />
+  <button onclick="spin()">Spin</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    let budget = 100;
+
+    function getColor(number) {
+      if (number === 0) return "blue";
+      return number % 2 === 0 ? "red" : "black";
+    }
+
+    function spin() {
+      const betAmount = parseInt(document.getElementById("betAmount").value);
+      const prediction = document.getElementById("prediction").value.trim().toLowerCase();
+      const resultDiv = document.getElementById("result");
+
+      if (isNaN(betAmount) || betAmount <= 0 || betAmount > budget) {
+        resultDiv.textContent = "Invalid bet amount.";
+        return;
+      }
+
+      const number = Math.floor(Math.random() * 37);
+      const color = getColor(number);
+
+      let win = false;
+      let multiplier = 0;
+
+      if (!isNaN(prediction) && parseInt(prediction) === number) {
+        win = true;
+        multiplier = 36;
+      } else if (["1-12", "13-24", "25-36"].includes(prediction)) {
+        const ranges = {
+          "1-12": [1, 12],
+          "13-24": [13, 24],
+          "25-36": [25, 36]
+        };
+        const [min, max] = ranges[prediction];
+        if (number >= min && number <= max) {
+          win = true;
+          multiplier = 3;
+        }
+      } else if (["red", "black", "blue"].includes(prediction)) {
+        if (color === prediction) {
+          win = true;
+          multiplier = 2;
+        }
+      }
+
+      let message = `Roulette landed on ${number} (${color}). `;
+
+      if (win) {
+        const winnings = betAmount * multiplier;
+        budget += winnings;
+        message += `You win $${winnings}!`;
+      } else {
+        budget -= betAmount;
+        message += `You lost $${betAmount}.`;
+      }
+
+      document.getElementById("budget").textContent = budget;
+      resultDiv.textContent = message;
+    }
+  </script>
+</body>
+</html>
+"""
+
+html_code
